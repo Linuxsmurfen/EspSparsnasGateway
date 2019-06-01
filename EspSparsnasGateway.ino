@@ -9,24 +9,24 @@
 // Settings for the Mqtt broker:
 #define MQTT_USERNAME "emonpi"     
 #define MQTT_PASSWORD "emonpimqtt2016"  
-const char* mqtt_server = "192.168.1.79";
+const char* mqtt_server = "192.168.1.200";
 
 // Wifi settings
-const char* ssid = "NETGEAR83";
-const char* password = "";
+const char* ssid = "................";
+const char* password = ".................";
+
 
 // Set this to the value of your energy meter
-#define PULSES_PER_KWH 1000
+#define PULSES_PER_KWH 1000.0
 // The code from the Sparnas tranmitter. Under the battery lid there's a sticker with digits like '400 643 654'.
 // Set SENSOR_ID to the last six digits, ie '643654'.
 // You can also set this later via Mqtt settings message, see docs.
-#define SENSOR_ID 643654 
+//#define SENSOR_ID 599159
+#define SENSOR_ID 613673
 
 #define DEBUG 1
-//#define RFDEBUG 1
 
 // You dont have to change anything below
-
 char* mqtt_status_topic = "EspSparsnasGateway/values";
 char* mqtt_debug_topic = "EspSparsnasGateway/debug";
 char* mqtt_error_topic = "EspSparsnasGateway/error";
@@ -37,21 +37,21 @@ const char compile_date[] = __DATE__ " " __TIME__;
 
 // Sometimes you need to change how files are included:
 // If the code doesnt compile, try to comment the row below and uncomment the next:
-#include <RFM69registers.h>
-//#include "RFM69registers.h"
+//#include <RFM69registers.h>
+#include "RFM69registers.h"
 
 #include <Arduino.h>
 #include <SPI.h>
 #include <ESP8266WiFi.h>
-#include <ESP8266mDNS.h>
-#include <WiFiUdp.h>
-#include <EEPROM.h>
+//#include <ESP8266mDNS.h>
+//#include <WiFiUdp.h>
+//#include <EEPROM.h>
 
 // Make it possible to read Vcc from code
 ADC_MODE(ADC_VCC);
 
 // OTA
-#include <ArduinoOTA.h>
+//#include <ArduinoOTA.h>
 
 // Json
 #include <ArduinoJson.h>
@@ -126,30 +126,30 @@ void setup() {
   }
 
   // Hostname defaults to esp8266-[ChipID]
-  ArduinoOTA.setHostname(appname);
+  //ArduinoOTA.setHostname(appname);
     
-  ArduinoOTA.onStart([]() {
-    Serial.println("Start");
-  });
-  ArduinoOTA.onEnd([]() {
-    Serial.println("\nEnd");
-  });
-  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-    Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
-  });
-  ArduinoOTA.onError([](ota_error_t error) {
-    Serial.printf("Error[%u]: ", error);
-    if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
-    else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
-    else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
-    else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
-    else if (error == OTA_END_ERROR) Serial.println("End Failed");
-  });
-  ArduinoOTA.begin();
-  #ifdef DEBUG
-    Serial.print("Over The Air programming enabled, port: ");
-    Serial.println(appname);
-  #endif
+  //ArduinoOTA.onStart([]() {
+  //  Serial.println("Start");
+  //});
+  //ArduinoOTA.onEnd([]() {
+  //  Serial.println("\nEnd");
+  //});
+  //ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+  //  Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+  //});
+  //ArduinoOTA.onError([](ota_error_t error) {
+  //  Serial.printf("Error[%u]: ", error);
+  //  if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+  //  else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+  //  else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+  //  else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+  //  else if (error == OTA_END_ERROR) Serial.println("End Failed");
+  //});
+  //ArduinoOTA.begin();
+  //#ifdef DEBUG
+  //  Serial.print("Over The Air programming enabled, port: ");
+  //  Serial.println(appname);
+  //#endif
 
   // Publish some info, first via serial, then Mqtt
   Serial.println(F("Ready"));
@@ -206,7 +206,7 @@ void setup() {
 }
 
 void interruptHandler() {
-  
+
   if (inInterrupt) {
     //Serial.println("Already in interruptHandler.");
     return;
@@ -347,8 +347,8 @@ void interruptHandler() {
         root["total"] = float(pulse / PULSES_PER_KWH);
         root["battery"] = battery;
         root["rssi"] = String(srssi);
-        root["power"] = String(power);
-        root["pulse"] = String(pulse);
+        //root["power"] = String(power);
+        //root["pulse"] = String(pulse);
         root.printTo((char*)msg, root.measureLength() + 1);
         client.publish(mqtt_status_topic, msg);
       }
@@ -360,7 +360,7 @@ void interruptHandler() {
 }
 
 void loop() {
-  ArduinoOTA.handle();
+  //ArduinoOTA.handle();
   // Web firmware update
   //httpServer.handleClient();
 
@@ -370,7 +370,7 @@ void loop() {
   }
   
   client.loop();
-  
+
   if (receiveDone()) {
     // We never gets here! But do we need it anyway?
     lastRecievedData = millis();
@@ -382,4 +382,3 @@ void loop() {
   }
   
 }
-
